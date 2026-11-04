@@ -1,0 +1,6 @@
+{
+  "name": "Dentsu Research Studio",
+  "description": "Adaptive market research and survey management platform by Dentsu Organisation.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
