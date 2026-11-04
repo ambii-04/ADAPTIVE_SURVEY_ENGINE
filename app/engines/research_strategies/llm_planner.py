@@ -1,5 +1,8 @@
 from app.schemas.research_plan import ResearchPlan
-from app.services.gemini_client import generate_structured_output
+from app.services.agentcab_client import (
+    RESEARCH_PLAN_WORKFLOW,
+    run_workflow,
+)
 
 
 def generate_research_plan_with_llm(
@@ -10,33 +13,20 @@ def generate_research_plan_with_llm(
     dimensions: list[str],
 ) -> ResearchPlan:
 
-    prompt = f"""
-You are a senior market research strategist.
-
-Create a research plan for the following study.
-
-Topic: {topic}
-Target audience: {target_audience}
-Geography: {geography}
-Research dimensions: {dimensions}
-
-Requirements:
-- Create 3 to 5 specific, decision-oriented research objectives.
-- Create one measurable construct for each supplied dimension.
-- Each construct must have a clear measurement method.
-- Create at least one testable hypothesis per dimension.
-- Hypotheses must be testable through survey responses.
-- Use only the supplied research dimensions.
-- Avoid fabricated market statistics or unsupported factual claims.
-- Keep the plan practical for a product-launch decision.
-- Give a importance score to each dimension on a scale of 1 to 10, where 10 is the most important.
-- Also for each dimension, provide a target coverage percentage for the survey, between 0 to 1, which indicates minimum amount of information needed from the respondents for that dimension before ending the survey.
-"""
-
-    result = generate_structured_output(prompt, ResearchPlan)
+    payload = run_workflow(
+        RESEARCH_PLAN_WORKFLOW,
+        {
+            "topic": topic,
+            "target_audience": target_audience,
+            "geography": geography,
+            "dimensions": dimensions,
+        },
+    )
 
     # Keep the research ID supplied by our application.
-    result.research_id = research_id
+    result = ResearchPlan.model_validate(
+        {**payload, "research_id": research_id}
+    )
 
     expected_dimensions = set(dimensions)
     actual_dimensions = {item.dimension for item in result.constructs}

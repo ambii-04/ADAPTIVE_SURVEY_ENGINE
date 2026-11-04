@@ -42,8 +42,8 @@ def test_llm_planner_validates_output(monkeypatch):
 
     monkeypatch.setattr(
         planner,
-        "generate_structured_output",
-        lambda prompt, model: fake_plan,
+        "run_workflow",
+        lambda workflow, inputs: fake_plan.model_dump(mode="json"),
     )
 
     result = planner.generate_research_plan_with_llm(
@@ -89,8 +89,8 @@ def test_llm_survey_validates_question_ids(monkeypatch):
 
     monkeypatch.setattr(
         architect,
-        "generate_structured_output",
-        lambda prompt, model: fake_survey,
+        "run_workflow",
+        lambda workflow, inputs: fake_survey.model_dump(mode="json"),
     )
 
     result = architect.build_survey_with_llm(

@@ -32,7 +32,13 @@ from app.engines.research_strategies.llm_planner import (
 from app.engines.survey_architect.llm_architect import (
     build_survey_with_llm,
 )
-from app.schemas.session_requests import CreateAdaptiveSessionRequest
+from app.schemas.session_requests import (
+    CreateAdaptiveSessionRequest,
+    FeatureChallengeRequest,
+    RespondentProfileRequest,
+    SweetnessDialRequest,
+    UsageOccasionRequest,
+)
 from app.engines.survey_architect.llm_architect import build_survey_with_llm
 from app.schemas.question import SurveyBlueprint
 from app.engines.analytics.report import build_session_report
@@ -1039,18 +1045,43 @@ def create_llm_session(
     payload: CreateAdaptiveSessionRequest,
     db: Session = Depends(get_db),
 ):
-    survey = build_survey_with_llm(
-        research_id=payload.research_id,
-        topic=payload.topic,
-        dimensions=payload.dimensions,
-        research_plan=payload.research_plan,
-        target_audience=payload.target_audience,
-        geography=payload.geography,
-        max_questions=payload.max_questions,
-    )
+    project = db.get(ResearchProject, payload.research_id)
+    if project is None:
+        raise HTTPException(
+            status_code=404,
+            detail="Research project not found",
+        )
+
+    if not project.research_plan:
+        raise HTTPException(
+            status_code=409,
+            detail="Research plan has not been generated for this project.",
+        )
+
+    dimensions = [dimension.name for dimension in project.dimensions]
+    if not dimensions:
+        raise HTTPException(
+            status_code=409,
+            detail="Research project has no dimensions.",
+        )
+
+    try:
+        survey = build_survey_with_llm(
+            research_id=project.id,
+            topic=project.topic,
+            dimensions=dimensions,
+            research_plan=project.research_plan,
+            target_audience=project.target_audience,
+            geography=project.geography,
+            max_questions=payload.max_questions,
+        )
+    except RuntimeError as exc:
+        raise HTTPException(status_code=503, detail=str(exc)) from exc
+    except ValueError as exc:
+        raise HTTPException(status_code=502, detail=str(exc)) from exc
 
     run = SurveyRun(
-        project_id=payload.research_id,
+        project_id=project.id,
         status="active",
         max_questions=payload.max_questions,
         survey_json=survey.model_dump(mode="json"),
@@ -1064,12 +1095,124 @@ def create_llm_session(
 
     return {
         "session_id": run.id,
-        "research_id": payload.research_id,
+        "research_id": project.id,
         "status": run.status,
         "question_budget": run.max_questions,
         "survey_title": survey.title,
         "total_questions": len(survey.questions),
     }
+
+def _get_session_or_404(session_id: int, db: Session) -> SurveyRun:
+    run = db.get(SurveyRun, session_id)
+    if run is None:
+        raise HTTPException(status_code=404, detail="Session not found.")
+    return run
+
+
+# The age screening question is not asked once the respondent's age is known.
+AGE_SCREENER_ID = "Q001"
+
+
+@app.post("/api/v1/sessions/{session_id}/respondent-profile")
+def submit_respondent_profile(
+    session_id: int,
+    payload: RespondentProfileRequest,
+    db: Session = Depends(get_db),
+):
+    run = _get_session_or_404(session_id, db)
+
+    if run.respondent_name is not None:
+        raise HTTPException(
+            status_code=409,
+            detail="Respondent profile has already been submitted.",
+        )
+
+    if run.served_question_ids or run.current_question_id or run.status != "active":
+        raise HTTPException(
+            status_code=409,
+            detail="The respondent profile must be submitted before the first question.",
+        )
+
+    if not run.survey_json:
+        raise HTTPException(
+            status_code=409,
+            detail="Session has no saved survey blueprint.",
+        )
+
+    survey = SurveyBlueprint.model_validate(run.survey_json)
+    survey.questions = [
+        question.model_copy(update={"depends_on": None, "show_if_option_id": None})
+        if question.depends_on == AGE_SCREENER_ID
+        else question
+        for question in survey.questions
+        if question.question_id != AGE_SCREENER_ID
+    ]
+    run.survey_json = survey.model_dump(mode="json")
+
+    run.respondent_name = payload.name
+    run.respondent_age = payload.age
+    run.respondent_gender = payload.gender
+
+    age_eligible = payload.age >= 18
+    if not age_eligible:
+        run.status = "ineligible"
+
+    db.commit()
+
+    return {
+        "session_id": session_id,
+        "status": run.status,
+        "age_eligible": age_eligible,
+    }
+
+
+@app.post("/api/v1/sessions/{session_id}/feature-challenge")
+def submit_feature_challenge(
+    session_id: int,
+    payload: FeatureChallengeRequest,
+    db: Session = Depends(get_db),
+):
+    run = _get_session_or_404(session_id, db)
+    extras = dict(run.respondent_extras or {})
+    extras["feature_challenge"] = payload.feature
+    run.respondent_extras = extras
+    db.commit()
+    return {"session_id": session_id, "feature": payload.feature}
+
+
+@app.post("/api/v1/sessions/{session_id}/sweetness-dial")
+def submit_sweetness_dial(
+    session_id: int,
+    payload: SweetnessDialRequest,
+    db: Session = Depends(get_db),
+):
+    run = _get_session_or_404(session_id, db)
+    extras = dict(run.respondent_extras or {})
+    extras["sweetness_dial"] = payload.level
+    run.respondent_extras = extras
+    db.commit()
+    return {"session_id": session_id, "level": payload.level}
+
+
+@app.post("/api/v1/sessions/{session_id}/usage-occasion")
+def submit_usage_occasion(
+    session_id: int,
+    payload: UsageOccasionRequest,
+    db: Session = Depends(get_db),
+):
+    run = _get_session_or_404(session_id, db)
+    extras = dict(run.respondent_extras or {})
+    occasions = dict(extras.get("usage_occasion") or {})
+    occasions[payload.location] = payload.response
+    extras["usage_occasion"] = occasions
+    run.respondent_extras = extras
+    db.commit()
+    return {
+        "session_id": session_id,
+        "location": payload.location,
+        "response": payload.response,
+    }
+
 
 @app.get("/api/v1/sessions/{session_id}/report")
 def get_session_report(

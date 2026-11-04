@@ -46,6 +46,11 @@ class SurveyRun(Base):
     current_question_id: Mapped[str | None] = mapped_column(
         String(50), nullable=True
     )
+    respondent_name: Mapped[str | None] = mapped_column(String(80), nullable=True)
+    respondent_age: Mapped[int | None] = mapped_column(nullable=True)
+    respondent_gender: Mapped[str | None] = mapped_column(String(40), nullable=True)
+    # Gamified mini-game results: feature_challenge, sweetness_dial, usage_occasion.
+    respondent_extras: Mapped[dict | None] = mapped_column(JSON, nullable=True)
 
 
 class SurveyAnswer(Base):
