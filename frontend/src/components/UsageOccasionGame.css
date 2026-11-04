@@ -1,0 +1,578 @@
+.usage-occasion-game {
+  position: fixed;
+  z-index: 500;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  overflow-y: auto;
+  padding: 20px;
+  color: #492a1d;
+  background:
+    radial-gradient(ellipse at 50% 10%, rgba(255, 248, 230, .97), rgba(227, 196, 156, .96) 75%),
+    #e3c49c;
+  font-family: 'DM Sans', sans-serif;
+  animation: occasion-appear .35s ease both;
+}
+
+.usage-occasion-panel {
+  width: min(100%, 1040px);
+  padding: clamp(18px, 3vw, 32px);
+  border: 1px solid rgba(108, 65, 42, .17);
+  border-radius: 25px;
+  background: rgba(255, 251, 241, .92);
+  box-shadow: 0 22px 70px rgba(67, 39, 25, .2);
+}
+
+.usage-occasion-header { text-align: center; }
+
+.usage-occasion-eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: #99623c;
+  font-size: .68rem;
+  font-weight: 800;
+  letter-spacing: .12em;
+}
+
+.usage-occasion-header h1 {
+  margin: 7px 0;
+  color: #48291c;
+  font-family: 'Nunito', 'DM Sans', sans-serif;
+  font-size: clamp(1.55rem, 3.4vw, 2.3rem);
+  font-weight: 900;
+  line-height: 1.15;
+  text-transform: none;
+  letter-spacing: -.02em;
+}
+
+.usage-occasion-header p {
+  margin: 0;
+  color: #806753;
+  font-size: .9rem;
+}
+
+.occasion-progress {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: min(100%, 460px);
+  margin: 18px auto;
+  color: #765239;
+  font-size: .73rem;
+}
+
+.occasion-progress-track {
+  height: 8px;
+  flex: 1;
+  overflow: hidden;
+  border-radius: 10px;
+  background: #ecdecb;
+}
+
+.occasion-progress-track span {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, #ac7045, #d59b61);
+  transition: width .35s ease;
+}
+
+.occasion-card-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 13px;
+}
+
+.occasion-flip-card {
+  min-width: 0;
+  min-height: 204px;
+  perspective: 1000px;
+}
+
+.occasion-flip-inner {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  min-height: 204px;
+  transform-style: preserve-3d;
+  transition: transform .65s cubic-bezier(.2,.75,.25,1);
+}
+
+.occasion-flip-card.is-flipped .occasion-flip-inner {
+  transform: rotateY(180deg);
+}
+
+.occasion-card-face {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  min-height: 204px;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  padding: 14px;
+  border: 1px solid #ead7bd;
+  border-radius: 17px;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+}
+
+.occasion-card-front {
+  gap: 4px;
+  color: #583622;
+  background: linear-gradient(145deg, #fffdf7, #f5e9d6);
+  box-shadow: 0 5px 14px rgba(83, 52, 31, .08);
+  cursor: pointer;
+  transition: border-color .2s ease, box-shadow .2s ease, transform .2s ease;
+}
+
+.occasion-card-front:hover:not(:disabled) {
+  transform: translateY(-5px) scale(1.015);
+  border-color: #bd8659;
+  box-shadow: 0 14px 24px rgba(83, 52, 31, .17);
+}
+
+.occasion-card-front:focus-visible,
+.occasion-card-back button:focus-visible,
+.occasion-continue:focus-visible {
+  outline: 3px solid #b87949;
+  outline-offset: 3px;
+}
+
+.occasion-scene {
+  position: relative;
+  display: block;
+  width: 100%;
+  height: 108px;
+  flex: 0 0 auto;
+  overflow: hidden;
+  border: 1px solid rgba(110, 70, 44, .1);
+  border-radius: 12px;
+  color: #805238;
+  background: linear-gradient(155deg, #f5e3ca, #dfc2a3);
+  isolation: isolate;
+}
+
+.occasion-scene::after {
+  position: absolute;
+  z-index: -1;
+  right: -12%;
+  bottom: -45%;
+  left: -12%;
+  height: 75%;
+  border-radius: 50%;
+  background: rgba(255, 248, 226, .46);
+  content: '';
+}
+
+.occasion-scene-glow {
+  position: absolute;
+  top: -20px;
+  right: 20%;
+  width: 84px;
+  height: 84px;
+  border-radius: 50%;
+  background: rgba(255, 251, 219, .52);
+  filter: blur(3px);
+}
+
+.occasion-scene-prop {
+  position: absolute;
+  z-index: 1;
+  display: grid;
+  width: 42px;
+  height: 46px;
+  place-items: center;
+  border: 1px solid rgba(255, 255, 255, .55);
+  border-radius: 13px;
+  color: #7b563d;
+  background: rgba(255, 248, 231, .74);
+  box-shadow: 0 4px 9px rgba(82, 54, 36, .1);
+  animation: occasion-scene-float 3s ease-in-out infinite;
+}
+
+.occasion-scene-prop-1 {
+  top: 21px;
+  left: 16%;
+}
+
+.occasion-scene-prop-2 {
+  top: 24px;
+  right: 15%;
+  animation-delay: -.9s;
+}
+
+.occasion-scene-prop-3 {
+  top: 9px;
+  left: calc(50% - 21px);
+  transform: scale(.83);
+  animation-delay: -1.5s;
+}
+
+.occasion-scene-cup {
+  position: absolute;
+  z-index: 3;
+  bottom: 4px;
+  left: calc(50% - 22px);
+  display: grid;
+  width: 44px;
+  height: 44px;
+  place-items: center;
+  border: 2px solid rgba(255, 255, 255, .88);
+  border-radius: 14px;
+  color: #fff8ee;
+  background: #89583e;
+  box-shadow: 0 5px 12px rgba(62, 39, 26, .22);
+  transition: transform .25s ease, background .25s ease;
+}
+
+.occasion-card-front:hover:not(:disabled) .occasion-scene-cup {
+  transform: translateY(-4px) rotate(-6deg);
+  background: #a56c4a;
+}
+
+.occasion-scene-steam {
+  position: absolute;
+  z-index: 2;
+  bottom: 45px;
+  left: calc(50% - 8px);
+  width: 7px;
+  height: 15px;
+  border: 2px solid rgba(255, 255, 255, .8);
+  border-right-color: transparent;
+  border-bottom-color: transparent;
+  border-radius: 50%;
+  animation: occasion-steam 1.8s ease-in-out infinite;
+}
+
+.occasion-scene-steam-two {
+  left: calc(50% + 3px);
+  bottom: 48px;
+  animation-delay: -.8s;
+}
+
+.occasion-scene-sparkle {
+  position: absolute;
+  top: 12px;
+  right: 13px;
+  color: #b17d45;
+  animation: occasion-sparkle 2.4s ease-in-out infinite;
+}
+
+.occasion-scene-hostel {
+  background: linear-gradient(145deg, #d9d8ed, #f2d2bd 75%);
+}
+
+.occasion-scene-road_trip {
+  background: linear-gradient(155deg, #b9d8e2, #f2d5a9 78%);
+}
+
+.occasion-scene-camping {
+  color: #e9d5ab;
+  background: linear-gradient(155deg, #354e58, #7b7754 80%);
+}
+
+.occasion-scene-camping .occasion-scene-prop {
+  color: #f4d28d;
+  background: rgba(65, 83, 75, .78);
+}
+
+.occasion-scene-camping .occasion-scene-sparkle {
+  color: #ffe39e;
+}
+
+.occasion-scene-office {
+  background: linear-gradient(155deg, #d4e2ea, #e8d2b9 76%);
+}
+
+.occasion-office-desk {
+  position: absolute;
+  z-index: 2;
+  right: 0;
+  bottom: 15px;
+  left: 0;
+  height: 10px;
+  border-radius: 5px;
+  background: #9a6748;
+  box-shadow: 0 5px 0 #704733;
+}
+
+.occasion-scene-office .occasion-scene-prop-1 {
+  top: 14px;
+  left: 18%;
+  width: 46px;
+  height: 38px;
+  border-radius: 6px;
+}
+
+.occasion-scene-office .occasion-scene-prop-2 {
+  top: 17px;
+  right: 17%;
+  width: 40px;
+  height: 38px;
+}
+
+.occasion-scene-office .occasion-scene-prop-3 {
+  z-index: 3;
+  top: 0;
+  left: 53%;
+  width: 34px;
+  height: 35px;
+  border: 0;
+  background: transparent;
+  box-shadow: none;
+}
+
+.occasion-scene-office .occasion-scene-cup {
+  bottom: 18px;
+  left: 48%;
+  width: 37px;
+  height: 37px;
+  border-radius: 11px;
+}
+
+.occasion-scene-office .occasion-scene-steam {
+  bottom: 50px;
+  left: calc(48% + 10px);
+}
+
+.occasion-scene-office .occasion-scene-steam-two {
+  left: calc(48% + 20px);
+}
+
+.occasion-scene-travel {
+  background: linear-gradient(155deg, #c1d6df, #e6c8a5 80%);
+}
+
+.occasion-scene-picnic {
+  background: linear-gradient(155deg, #b9d8c3, #f0d9ac 78%);
+}
+
+@keyframes occasion-scene-float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-4px); }
+}
+
+@keyframes occasion-steam {
+  0%, 100% { opacity: .35; transform: translateY(2px) scale(.8); }
+  50% { opacity: .9; transform: translateY(-4px) scale(1.05); }
+}
+
+@keyframes occasion-sparkle {
+  0%, 100% { opacity: .55; transform: scale(.85) rotate(0); }
+  50% { opacity: 1; transform: scale(1.1) rotate(10deg); }
+}
+
+.occasion-card-front strong { font-size: .95rem; }
+.occasion-card-front small { color: #9a8068; font-size: .66rem; }
+
+.occasion-complete-badge {
+  position: absolute;
+  top: 9px;
+  right: 9px;
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  color: #657b3e;
+  font-size: .62rem;
+  font-weight: 800;
+}
+
+.occasion-card-back {
+  align-items: stretch;
+  justify-content: flex-start;
+  gap: 7px;
+  transform: rotateY(180deg);
+  border-color: #d9bd9c;
+  background: linear-gradient(145deg, #fff9e9, #f3e2c9);
+  box-shadow: 0 8px 20px rgba(83, 52, 31, .1);
+}
+
+.occasion-back-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  color: #95603b;
+  font-size: .65rem;
+  font-weight: 800;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+}
+
+.occasion-situation {
+  margin: 0;
+  color: #7e6048;
+  font-size: .69rem;
+  line-height: 1.38;
+}
+
+.occasion-card-back h2 {
+  margin: 0;
+  color: #4e2c1e;
+  font-family: 'Nunito', 'DM Sans', sans-serif;
+  font-size: .79rem;
+  font-weight: 900;
+  line-height: 1.25;
+}
+
+.occasion-answer-options {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 5px;
+  margin-top: auto;
+}
+
+.occasion-answer {
+  min-height: 31px;
+  padding: 5px 3px;
+  border: 1px solid #d8b896;
+  border-radius: 8px;
+  color: #6d452c;
+  background: #fffdf7;
+  font-size: .65rem;
+  font-weight: 800;
+  transition: background .18s ease, color .18s ease, border-color .18s ease;
+}
+
+.occasion-answer:hover:not(:disabled),
+.occasion-answer.is-chosen {
+  border-color: #8f5935;
+  color: white;
+  background: #8f5935;
+}
+
+.occasion-card-actions {
+  display: flex;
+  justify-content: space-between;
+  gap: 6px;
+}
+
+.occasion-secondary-action,
+.occasion-complete-action {
+  display: inline-flex;
+  min-height: 28px;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  padding: 4px 7px;
+  border: 0;
+  border-radius: 7px;
+  font-size: .61rem;
+  font-weight: 800;
+}
+
+.occasion-secondary-action {
+  color: #805b43;
+  background: transparent;
+}
+
+.occasion-complete-action {
+  color: white;
+  background: #73844a;
+}
+
+.occasion-secondary-action:hover:not(:disabled) { background: #eadcc9; }
+.occasion-complete-action:hover:not(:disabled) { background: #5f7139; }
+
+.occasion-footer {
+  min-height: 20px;
+  margin-top: 15px;
+  color: #84674e;
+  text-align: center;
+  font-size: .75rem;
+  font-weight: 700;
+}
+
+.occasion-reward {
+  display: grid;
+  justify-items: center;
+  gap: 8px;
+  padding: 35px 12px 20px;
+  text-align: center;
+  animation: occasion-reward-pop .5s cubic-bezier(.16,1,.3,1) both;
+}
+
+.occasion-reward-cup {
+  display: grid;
+  width: 82px;
+  height: 82px;
+  place-items: center;
+  margin-bottom: 5px;
+  border-radius: 50%;
+  background: #f3e2ca;
+  font-size: 2.7rem;
+}
+
+.occasion-reward h2 {
+  margin: 0;
+  color: #49291d;
+  font-family: 'Nunito', 'DM Sans', sans-serif;
+  font-size: clamp(1.35rem, 3vw, 2rem);
+}
+
+.occasion-reward p { margin: 0; color: #806753; }
+
+.occasion-continue {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 10px;
+  padding: 12px 20px;
+  border: 0;
+  border-radius: 12px;
+  color: white;
+  background: #825032;
+  box-shadow: 0 5px 12px rgba(83, 52, 31, .18);
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.occasion-continue:hover { background: #694027; }
+
+@keyframes occasion-appear {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes occasion-reward-pop {
+  from { opacity: 0; transform: translateY(12px) scale(.97); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+@media (max-width: 700px) {
+  .usage-occasion-game { padding: 10px; }
+  .usage-occasion-panel { padding: 18px 12px; border-radius: 20px; }
+  .occasion-card-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 9px; }
+  .occasion-flip-card,
+  .occasion-flip-inner,
+  .occasion-card-face { min-height: 224px; }
+  .occasion-card-face { padding: 10px; }
+  .occasion-scene { height: 116px; }
+  .occasion-situation { font-size: .66rem; }
+  .occasion-card-back h2 { font-size: .74rem; }
+  .occasion-answer { min-height: 29px; font-size: .61rem; }
+}
+
+@media (max-width: 380px) {
+  .usage-occasion-header p { font-size: .78rem; }
+  .occasion-card-grid { gap: 7px; }
+  .occasion-flip-card,
+  .occasion-flip-inner,
+  .occasion-card-face { min-height: 232px; }
+  .occasion-scene { height: 120px; }
+  .occasion-card-front strong { font-size: .83rem; }
+  .occasion-situation { font-size: .62rem; }
+  .occasion-card-back h2 { font-size: .69rem; }
+  .occasion-answer { font-size: .56rem; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .usage-occasion-game *,
+  .usage-occasion-game *::before,
+  .usage-occasion-game *::after {
+    animation-duration: .01ms !important;
+    transition-duration: .01ms !important;
+  }
+}
