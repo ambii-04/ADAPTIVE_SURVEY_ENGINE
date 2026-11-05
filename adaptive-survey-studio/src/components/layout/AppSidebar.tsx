@@ -3,6 +3,7 @@ import {
   LayoutDashboard,
   FolderKanban,
   PlusCircle,
+  CircleDollarSign,
   Settings,
   HelpCircle,
 } from 'lucide-react';
@@ -21,6 +22,7 @@ export function AppSidebar({ onOpenSettings }: AppSidebarProps) {
     { to: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
     { to: '/research', label: 'Research Projects', icon: FolderKanban },
     { to: '/research/new', label: 'New Research', icon: PlusCircle },
+    { to: '/pricing-agent', label: 'Pricing Agent', icon: CircleDollarSign },
   ];
 
   return (

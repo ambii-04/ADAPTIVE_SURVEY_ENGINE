@@ -107,6 +107,7 @@ export function BackendSettingsModal({ isOpen, onClose }: BackendSettingsModalPr
           </p>
           <ul className="list-disc pl-4 space-y-0.5 font-mono text-[10px] text-slate-600">
             <li>POST /api/v1/llm/research-plan</li>
+            <li>POST /api/v1/llm/pricing</li>
             <li>POST /api/v1/research</li>
             <li>POST /api/v1/llm/sessions</li>
             <li>GET /api/v1/sessions/{'{session_id}'}/next</li>

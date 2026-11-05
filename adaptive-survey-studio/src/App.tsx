@@ -17,6 +17,7 @@ import { SessionReportPage } from './pages/SessionReportPage';
 import { SessionInsightsPage } from './pages/SessionInsightsPage';
 import { RespondentFramePage } from './pages/RespondentFramePage';
 import { SignInPage } from './pages/SignInPage';
+import { PricingAgentPage } from './pages/PricingAgentPage';
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -52,6 +53,7 @@ export default function App() {
                 >
                   <Route index element={<Navigate to="/dashboard" replace />} />
                   <Route path="dashboard" element={<DashboardPage />} />
+                  <Route path="pricing-agent" element={<PricingAgentPage />} />
                   <Route path="research" element={<ResearchListPage />} />
                   <Route path="research/new" element={<CreateResearchPage />} />
                   <Route path="research/:researchId" element={<ResearchOverviewPage />} />

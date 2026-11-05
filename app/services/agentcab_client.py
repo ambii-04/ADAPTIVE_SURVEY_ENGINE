@@ -78,8 +78,23 @@ INSIGHTS_WORKFLOW = AgentcabWorkflow(
     client_secret_env="AGENTCAB_INSIGHTS_CLIENT_SECRET",
 )
 
+PRICING_WORKFLOW = AgentcabWorkflow(
+    name="pricing",
+    jobs_url=(
+        "https://ccp-agentc-uat.dentsu.com/project/exports"
+        "/rest-api/6addbfd4c7d207caaa391b70/jobs"
+    ),
+    client_id_env="AGENTCAB_PRICING_CLIENT_ID",
+    client_secret_env="AGENTCAB_PRICING_CLIENT_SECRET",
+)
 
-def run_workflow(workflow: AgentcabWorkflow, inputs: dict) -> dict:
+
+def run_workflow(
+    workflow: AgentcabWorkflow,
+    inputs: dict,
+    *,
+    allow_plain_text_output: bool = False,
+) -> dict:
     """
     Run an Agentcab job and return the generated JSON payload.
 
@@ -129,7 +144,7 @@ def run_workflow(workflow: AgentcabWorkflow, inputs: dict) -> dict:
         detail = job.get("error") or job.get("failure") or "unknown error"
         raise ValueError(f"Agentcab {workflow.name} job failed: {detail}")
 
-    return _extract_payload(job, workflow)
+    return _extract_payload(job, workflow, allow_plain_text_output)
 
 
 def _read_job(response: requests.Response, workflow: AgentcabWorkflow) -> dict:
@@ -148,10 +163,45 @@ def _read_job(response: requests.Response, workflow: AgentcabWorkflow) -> dict:
     return body
 
 
-def _extract_payload(job: dict, workflow: AgentcabWorkflow) -> dict:
+def _extract_payload(
+    job: dict,
+    workflow: AgentcabWorkflow,
+    allow_plain_text_output: bool = False,
+) -> dict:
     output = job.get("output") or {}
 
-    payload = (output.get("variables") or {}).get("payload")
+    if allow_plain_text_output:
+        variables = output.get("variables") if isinstance(output, dict) else None
+        candidates = [
+            variables.get("payload") if isinstance(variables, dict) else None,
+            variables,
+            output,
+        ]
+        for candidate in candidates:
+            if isinstance(candidate, dict) and isinstance(candidate.get("text"), str):
+                return {"text": candidate["text"]}
+
+        text = output.get("text") if isinstance(output, dict) else None
+        if isinstance(text, str):
+            try:
+                parsed = json.loads(text)
+            except json.JSONDecodeError:
+                return {"text": text}
+            if isinstance(parsed, dict) and isinstance(parsed.get("text"), str):
+                return {"text": parsed["text"]}
+
+        output_keys = sorted(output.keys()) if isinstance(output, dict) else []
+        variable_keys = sorted(variables.keys()) if isinstance(variables, dict) else []
+        payload = variables.get("payload") if isinstance(variables, dict) else None
+        payload_keys = sorted(payload.keys()) if isinstance(payload, dict) else []
+        raise ValueError(
+            f"Agentcab {workflow.name} job completed without the required "
+            f"'text' report (output fields: {output_keys}; "
+            f"variable fields: {variable_keys}; payload fields: {payload_keys})."
+        )
+
+    variables = output.get("variables") or {}
+    payload = variables.get("payload")
     if isinstance(payload, dict):
         return payload
 
@@ -163,7 +213,6 @@ def _extract_payload(job: dict, workflow: AgentcabWorkflow) -> dict:
             parsed = None
         if isinstance(parsed, dict):
             return parsed
-
     raise ValueError(
         f"Agentcab {workflow.name} job completed without a JSON payload."
     )

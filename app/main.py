@@ -26,6 +26,8 @@ from app.schemas.llm_requests import (
     LLMResearchPlanRequest,
     LLMSurveyRequest,
 )
+from app.schemas.pricing import PricingAgentRequest, PricingAgentResponse
+from app.engines.pricing_agent import generate_pricing_report
 from app.engines.research_strategies.llm_planner import (
     generate_research_plan_with_llm,
 )
@@ -1017,6 +1019,19 @@ def create_llm_research_plan(
         raise HTTPException(status_code=503, detail=str(exc)) from exc
     except ValueError as exc:
         db.rollback()
+        raise HTTPException(status_code=502, detail=str(exc)) from exc
+
+
+@app.post(
+    "/api/v1/llm/pricing",
+    response_model=PricingAgentResponse,
+)
+def create_pricing_report(payload: PricingAgentRequest):
+    try:
+        return generate_pricing_report(city=payload.city, month=payload.month)
+    except RuntimeError as exc:
+        raise HTTPException(status_code=503, detail=str(exc)) from exc
+    except ValueError as exc:
         raise HTTPException(status_code=502, detail=str(exc)) from exc
 
 

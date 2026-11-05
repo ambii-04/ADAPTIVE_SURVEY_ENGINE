@@ -110,6 +110,67 @@ def test_text_output_is_used_when_variables_are_missing(monkeypatch, workflow_en
     assert result == {"research_id": 1, "title": "T", "questions": []}
 
 
+def test_plain_text_output_can_be_returned_as_text_payload(workflow_env):
+    job = {
+        "isCompleted": True,
+        "success": True,
+        "output": {"text": "# Pricing recommendation"},
+    }
+
+    result = client._extract_payload(job, workflow_env, allow_plain_text_output=True)
+
+    assert result == {"text": "# Pricing recommendation"}
+
+
+def test_plain_text_output_ignores_echoed_inputs_in_variables_payload(workflow_env):
+    job = {
+        "isCompleted": True,
+        "success": True,
+        "output": {
+            "variables": {"payload": {"city": "Bengaluru", "month": "March"}},
+            "text": "# Pricing recommendation",
+        },
+    }
+
+    result = client._extract_payload(job, workflow_env, allow_plain_text_output=True)
+
+    assert result == {"text": "# Pricing recommendation"}
+
+
+@pytest.mark.parametrize(
+    "output",
+    [
+        {"text": "# Direct output report"},
+        {"variables": {"text": "# Variables report"}},
+        {"variables": {"payload": {"text": "# Payload report"}}},
+    ],
+)
+def test_plain_text_output_accepts_documented_text_shapes(workflow_env, output):
+    result = client._extract_payload(
+        {"output": output},
+        workflow_env,
+        allow_plain_text_output=True,
+    )
+
+    assert result["text"].startswith("# ")
+
+
+def test_plain_text_output_requires_report_when_only_input_echoed(workflow_env):
+    job = {
+        "isCompleted": True,
+        "success": True,
+        "output": {
+            "variables": {"payload": {"city": "Bengaluru", "month": "March"}},
+        },
+    }
+
+    with pytest.raises(ValueError, match="required 'text' report") as exc_info:
+        client._extract_payload(job, workflow_env, allow_plain_text_output=True)
+
+    assert "payload fields: ['city', 'month']" in str(exc_info.value)
+    assert "Bengaluru" not in str(exc_info.value)
+
+
 def test_failed_job_raises_value_error(monkeypatch, workflow_env):
     job = {"isCompleted": True, "success": False, "error": "node crashed"}
     monkeypatch.setattr(
