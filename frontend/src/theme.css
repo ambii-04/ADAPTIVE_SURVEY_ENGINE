@@ -1,0 +1,680 @@
+/*
+ * Blockcraft Cocoa theme: a blocky, Minecraft/Roblox-style skin with hot-chocolate touches.
+ * Loaded after every other stylesheet, so it only restyles; layout and behaviour stay in the
+ * component styles. Animations use transform and opacity only, and the decorative layers are
+ * switched off while the 3D run is on screen.
+ */
+:root {
+  --bc-ink: #1d120a;
+  --bc-cocoa: #3b1f0e;
+  --bc-choc: #6b3a1c;
+  --bc-milk: #8a5530;
+  --bc-caramel: #d9902f;
+  --bc-gold: #ffcf3a;
+  --bc-cream: #fff3dc;
+  --bc-parch: #f4e1bd;
+  --bc-parch-shade: #c99a5e;
+  --bc-grass: #5fae3b;
+  --bc-grass-dark: #3d7f24;
+  --bc-grass-light: #8bd65a;
+  --bc-stone: #d4d4d4;
+  --bc-stone-dark: #8f8f8f;
+  --bc-pixel: 'Press Start 2P', 'Courier New', monospace;
+  --bc-display: 'Lilita One', 'Nunito', sans-serif;
+  --bc-body: 'Nunito', 'Trebuchet MS', sans-serif;
+  --bc-panel-shadow: inset 4px 4px 0 #fffaf0, inset -4px -4px 0 var(--bc-parch-shade), 8px 8px 0 rgba(29, 18, 10, 0.4);
+}
+
+/* ---------- World backdrop (menu screens) ---------- */
+.game-shell {
+  background: linear-gradient(180deg, #7cc8f5 0%, #a9dcf8 55%, #d5efff 100%);
+  font-family: var(--bc-body);
+}
+
+/* Grass-and-dirt block strip along the bottom edge. */
+.game-shell::after {
+  content: '';
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 86px;
+  z-index: 0;
+  pointer-events: none;
+  background:
+    linear-gradient(180deg, #74c94f 0 12px, #4f9e33 12px 20px, transparent 20px),
+    repeating-conic-gradient(#7a4c25 0 25%, #8b5a2b 0 50%) 0 20px / 22px 22px;
+  box-shadow: inset 0 3px 0 rgba(255, 255, 255, 0.25);
+}
+
+/* Melted chocolate dripping from the top edge. */
+.game-shell::before {
+  content: '';
+  position: fixed;
+  left: 0;
+  right: 0;
+  top: 0;
+  height: 48px;
+  z-index: 2;
+  pointer-events: none;
+  background:
+    linear-gradient(180deg, #4a2814 0 12px, transparent 12px),
+    radial-gradient(circle at 50% 0, #4a2814 0 13px, transparent 14px) 0 4px / 64px 30px repeat-x,
+    radial-gradient(ellipse 6px 20px at 50% 0, #5a3018 0 96%, transparent 100%) 26px 10px / 96px 40px repeat-x,
+    radial-gradient(ellipse 4px 13px at 50% 0, #5a3018 0 96%, transparent 100%) 70px 10px / 128px 30px repeat-x;
+  filter: drop-shadow(0 3px 0 rgba(29, 18, 10, 0.25));
+}
+
+.game-shell:has(.game-scene)::before,
+.game-shell:has(.game-scene)::after,
+.game-shell:has(.game-scene) .cocoa-fx {
+  display: none;
+}
+
+/* Floating marshmallow cubes and rising steam. */
+.cocoa-fx {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.cocoa-fx span {
+  position: absolute;
+  bottom: -40px;
+  will-change: transform, opacity;
+}
+
+.cocoa-mallow {
+  width: 22px;
+  height: 22px;
+  background: #fffaf3;
+  border: 3px solid var(--bc-ink);
+  box-shadow: inset -4px -4px 0 #f1c9d6, inset 3px 3px 0 #ffffff;
+  animation: cocoa-float 16s linear infinite;
+}
+
+.cocoa-steam {
+  width: 10px;
+  height: 34px;
+  background: rgba(255, 255, 255, 0.75);
+  box-shadow: 10px -12px 0 rgba(255, 255, 255, 0.55), -10px -26px 0 rgba(255, 255, 255, 0.4);
+  animation: cocoa-steam 9s ease-in infinite;
+}
+
+.cocoa-fx span:nth-child(1) { left: 6%; animation-duration: 17s; animation-delay: -2s; }
+.cocoa-fx span:nth-child(2) { left: 14%; animation-delay: -5s; }
+.cocoa-fx span:nth-child(3) { left: 27%; animation-duration: 20s; animation-delay: -11s; }
+.cocoa-fx span:nth-child(4) { left: 41%; animation-delay: -1s; }
+.cocoa-fx span:nth-child(5) { left: 63%; animation-duration: 18s; animation-delay: -7s; }
+.cocoa-fx span:nth-child(6) { left: 76%; animation-delay: -4s; }
+.cocoa-fx span:nth-child(7) { left: 88%; animation-duration: 21s; animation-delay: -14s; }
+.cocoa-fx span:nth-child(8) { left: 95%; animation-delay: -6s; }
+
+@keyframes cocoa-float {
+  0% { transform: translate3d(0, 0, 0) rotate(0deg); opacity: 0; }
+  10% { opacity: 0.9; }
+  90% { opacity: 0.9; }
+  100% { transform: translate3d(24px, -110vh, 0) rotate(270deg); opacity: 0; }
+}
+
+@keyframes cocoa-steam {
+  0% { transform: translate3d(0, 0, 0) scaleY(0.6); opacity: 0; }
+  20% { opacity: 0.7; }
+  100% { transform: translate3d(-18px, -70vh, 0) scaleY(1.4); opacity: 0; }
+}
+
+/* Screens let the sky show through and keep clear of the drips and the grass strip.
+   The overlay screens keep their own fixed positioning; the in-flow ones are lifted above the drips. */
+.game-shell :is(.respondent-intro-screen, .welcome-scene, .character-select-scene, .usage-occasion-game, .feature-challenge, .sweetness-dial-screen, .complete-scene) {
+  background: transparent;
+  padding-top: 56px;
+  padding-bottom: 96px;
+}
+
+.game-shell :is(.welcome-scene, .character-select-scene, .complete-scene) {
+  position: relative;
+  z-index: 3;
+}
+
+/* ---------- Panels ---------- */
+.game-shell :is(.respondent-intro-card, .welcome-copy, .character-select-copy, .usage-occasion-panel, .feature-challenge-panel, .sweetness-dial-card, .cafe-completion-card, .pause-card, .price-wheel, .rank-panel, .price-answer-panel) {
+  background: linear-gradient(180deg, #fff6e2 0%, #f3dfb8 100%);
+  border: 4px solid var(--bc-ink);
+  border-top: 12px solid var(--bc-choc);
+  border-radius: 0;
+  box-shadow: var(--bc-panel-shadow);
+  color: var(--bc-cocoa);
+}
+
+.game-shell :is(.respondent-intro-card, .welcome-copy, .character-select-copy, .usage-occasion-panel, .feature-challenge-panel, .sweetness-dial-card, .cafe-completion-card, .pause-card) :is(h1, h2) {
+  font-family: var(--bc-display);
+  font-weight: 400;
+  color: var(--bc-cocoa);
+  letter-spacing: 0.5px;
+  text-shadow: 3px 3px 0 #e9b66c;
+}
+
+.game-shell :is(.respondent-intro-card, .welcome-copy, .character-select-copy, .sweetness-dial-card, .cafe-completion-card) h1 em {
+  color: #c4621c;
+  text-shadow: 3px 3px 0 var(--bc-ink);
+}
+
+.game-shell :is(.respondent-intro-card, .welcome-copy, .character-select-copy, .usage-occasion-panel, .feature-challenge-panel, .sweetness-dial-card, .cafe-completion-card, .pause-card) p {
+  font-family: var(--bc-body);
+  font-weight: 700;
+  color: #5a3a22;
+}
+
+/* Small pixel-font labels. */
+/* Single classes only in this list: a compound entry would raise the specificity of every member. */
+.game-shell :is(.eyebrow, .respondent-intro-kicker, .usage-occasion-eyebrow, .feature-challenge-eyebrow, .sweetness-dial-eyebrow, .cafe-completion-sign, .character-select-status, .occasion-back-label, .respondent-intro-note) {
+  font-family: var(--bc-pixel);
+  font-size: 9px;
+  font-weight: 400;
+  line-height: 1.6;
+  letter-spacing: 0.5px;
+  color: #8a4b14;
+  text-shadow: none;
+}
+
+.game-shell .cafe-completion-sign {
+  background: var(--bc-choc);
+  color: var(--bc-gold);
+  border: 3px solid var(--bc-ink);
+  border-radius: 0;
+  padding: 7px 12px;
+}
+
+/* ---------- Buttons ---------- */
+.game-shell :is(.gold-cta, .respondent-intro-submit, .sweetness-save, .occasion-continue, .enter-cta) {
+  font-family: var(--bc-pixel);
+  font-size: 12px;
+  font-weight: 400;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  color: #ffffff;
+  text-shadow: 2px 2px 0 var(--bc-ink);
+  background: var(--bc-grass);
+  border: 4px solid var(--bc-ink);
+  border-radius: 0;
+  box-shadow: inset -4px -4px 0 var(--bc-grass-dark), inset 4px 4px 0 var(--bc-grass-light), 4px 4px 0 rgba(0, 0, 0, 0.35);
+  padding: 14px 22px;
+  transition: transform 0.08s ease, filter 0.08s ease;
+}
+
+.game-shell :is(.gold-cta, .respondent-intro-submit, .sweetness-save, .occasion-continue, .enter-cta):hover:not(:disabled) {
+  filter: brightness(1.08);
+  transform: translate(-1px, -1px);
+  background: var(--bc-grass);
+}
+
+.game-shell :is(.gold-cta, .respondent-intro-submit, .sweetness-save, .occasion-continue, .enter-cta):active:not(:disabled) {
+  transform: translate(2px, 2px);
+  box-shadow: inset -4px -4px 0 var(--bc-grass-dark), inset 4px 4px 0 var(--bc-grass-light), 1px 1px 0 rgba(0, 0, 0, 0.35);
+}
+
+.game-shell :is(.gold-cta, .respondent-intro-submit, .sweetness-save, .occasion-continue, .enter-cta):disabled {
+  filter: saturate(0.4);
+  opacity: 0.75;
+}
+
+/* Stone buttons for secondary choices; chosen ones turn to chocolate. */
+.game-shell :is(.respondent-gender-option, .occasion-answer, .drink-secondary, .occasion-secondary-action, .back-link) {
+  font-family: var(--bc-body);
+  font-weight: 800;
+  color: #2a1a0e;
+  background: var(--bc-stone);
+  border: 3px solid var(--bc-ink);
+  border-radius: 0;
+  box-shadow: inset -3px -3px 0 var(--bc-stone-dark), inset 3px 3px 0 #ffffff;
+  transition: transform 0.08s ease;
+}
+
+.game-shell :is(.respondent-gender-option, .occasion-answer, .drink-secondary, .occasion-secondary-action, .back-link):hover:not(:disabled) {
+  background: #e6e6e6;
+  transform: translate(-1px, -1px);
+}
+
+.game-shell :is(.respondent-gender-option.is-selected, .occasion-answer.is-chosen) {
+  color: #ffffff;
+  background: var(--bc-milk);
+  box-shadow: inset -3px -3px 0 #5c3519, inset 3px 3px 0 #b07a4a;
+  text-shadow: 1px 1px 0 var(--bc-ink);
+}
+
+.game-shell .wheel-type-link {
+  font-family: var(--bc-pixel);
+  font-size: 9px;
+  color: var(--bc-choc);
+}
+
+/* ---------- Inputs ---------- */
+.game-shell :is(.respondent-intro-field input, .price-answer-panel input) {
+  font: 800 16px var(--bc-body);
+  color: var(--bc-cocoa);
+  background: #fffaf0;
+  border: 3px solid var(--bc-ink);
+  border-radius: 0;
+  box-shadow: inset 3px 3px 0 rgba(0, 0, 0, 0.12);
+}
+
+.game-shell :is(.respondent-intro-field input, .price-answer-panel input):focus {
+  outline: 3px solid var(--bc-gold);
+  outline-offset: 0;
+  border-color: var(--bc-ink);
+}
+
+.game-shell .respondent-intro-field span,
+.game-shell .respondent-gender-field legend {
+  font: 800 14px var(--bc-body);
+  color: var(--bc-cocoa);
+}
+
+.game-shell .respondent-intro-cup {
+  background: var(--bc-choc);
+  color: var(--bc-cream);
+  border: 3px solid var(--bc-ink);
+  border-radius: 0;
+  box-shadow: inset -3px -3px 0 #4a2814, inset 3px 3px 0 #9a5f34;
+}
+
+.game-shell .respondent-intro-error {
+  font-weight: 800;
+  color: #ffffff;
+  background: #b3261e;
+  border: 3px solid var(--bc-ink);
+  border-radius: 0;
+  padding: 8px 10px;
+}
+
+/* ---------- Welcome and runner select ---------- */
+.game-shell .welcome-meta span {
+  font-family: var(--bc-pixel);
+  font-size: 9px;
+  line-height: 1.6;
+  background: var(--bc-choc);
+  color: var(--bc-gold);
+  border: 3px solid var(--bc-ink);
+  padding: 6px 9px;
+}
+
+.game-shell .character-choice {
+  background: linear-gradient(180deg, #fff6e2, #efd8ad);
+  border: 4px solid var(--bc-ink);
+  border-radius: 0;
+  box-shadow: inset 4px 4px 0 #fffaf0, inset -4px -4px 0 var(--bc-parch-shade), 6px 6px 0 rgba(29, 18, 10, 0.35);
+  outline: none;
+}
+
+.game-shell .character-choice strong {
+  font-family: var(--bc-display);
+  font-weight: 400;
+  color: var(--bc-cocoa);
+  text-shadow: 2px 2px 0 #e9b66c;
+}
+
+.game-shell .character-choice small {
+  font-weight: 700;
+  color: #5a3a22;
+  text-shadow: none;
+}
+
+.game-shell .character-select-status {
+  display: block;
+  margin-top: 10px;
+}
+
+.game-shell .character-choice-active {
+  background: linear-gradient(180deg, #8a5530, #6b3a1c);
+  box-shadow: inset 4px 4px 0 #b07a4a, inset -4px -4px 0 #4a2814, 6px 6px 0 rgba(29, 18, 10, 0.4), 0 0 0 4px var(--bc-gold);
+}
+
+.game-shell .character-choice-active :is(strong, small, .character-select-status) {
+  color: var(--bc-cream);
+  text-shadow: 2px 2px 0 var(--bc-ink);
+}
+
+.game-shell .character-art {
+  background: var(--bc-gold);
+  color: var(--bc-cocoa);
+  border: 3px solid var(--bc-ink);
+  border-radius: 0;
+  box-shadow: inset -4px -4px 0 #d39b17, inset 4px 4px 0 #ffe58a;
+}
+
+/* ---------- Game HUD ---------- */
+.game-shell .brand-mark,
+.game-shell .journey-meter,
+.game-shell :is(.game-clock, .timer-toggle, .spark-counter, .round-control) {
+  background: rgba(29, 18, 10, 0.86);
+  color: var(--bc-cream);
+  border: 3px solid var(--bc-ink);
+  border-radius: 0;
+  box-shadow: inset 2px 2px 0 rgba(255, 255, 255, 0.16), inset -2px -2px 0 rgba(0, 0, 0, 0.4), 3px 3px 0 rgba(0, 0, 0, 0.3);
+}
+
+.game-shell .brand-mark strong { font-family: var(--bc-display); font-weight: 400; color: var(--bc-gold); letter-spacing: 0.5px; }
+.game-shell .brand-mark small { color: #e8d5b8; }
+.game-shell .brand-heart { background: var(--bc-gold); color: var(--bc-cocoa); border: 2px solid var(--bc-ink); border-radius: 0; }
+
+.game-shell :is(.game-clock, .timer-toggle, .spark-counter, .round-control) {
+  font-family: var(--bc-pixel);
+  font-size: 10px;
+}
+
+.game-shell :is(.game-clock, .timer-toggle, .spark-counter, .round-control) svg { color: var(--bc-gold); }
+
+/* A slimmer progress meter leaves room for the question below it. */
+.game-shell .journey-meter {
+  padding: 6px 10px 7px;
+}
+
+.game-shell .journey-meter .chapter-trail { display: none; }
+
+.game-shell .journey-meter .meter-title {
+  font-family: var(--bc-pixel);
+  font-size: 9px;
+  color: var(--bc-gold);
+}
+
+.game-shell .journey-meter .meter-title b { color: var(--bc-cream); }
+
+.game-shell .journey-meter .meter-segments span {
+  height: 9px;
+  border-radius: 0;
+  background: #5a4636;
+  box-shadow: inset -2px -2px 0 rgba(0, 0, 0, 0.35);
+}
+
+.game-shell .journey-meter .meter-segments .segment-done { background: var(--bc-gold); box-shadow: inset -2px -2px 0 #c99415; }
+.game-shell .journey-meter .meter-segments .segment-current { background: #ff9d2e; }
+
+/* ---------- Question banner ---------- */
+/* It widens for long questions instead of growing taller, so the doors below stay visible. */
+.game-shell .question-banner {
+  top: 64px;
+  width: max-content;
+  min-width: min(460px, calc(100% - 32px));
+  max-width: min(1180px, calc(100% - 32px));
+  padding: 9px 22px 10px;
+  background: linear-gradient(180deg, #fffaf0 0%, #f7e6c4 100%);
+  border: 4px solid var(--bc-ink);
+  border-top: 10px solid var(--bc-choc);
+  border-radius: 0;
+  box-shadow: inset 3px 3px 0 #ffffff, inset -3px -3px 0 #d3a76b, 6px 6px 0 rgba(29, 18, 10, 0.4);
+}
+
+/* The slimmer meter ends around 64px; this matches the :has() selector in App.css so it wins. */
+.game-shell:has(.game-scene) .question-banner {
+  top: 74px;
+}
+
+.game-shell .question-banner.is-long,
+.game-shell .question-banner.is-xlong {
+  width: min(1180px, calc(100% - 32px));
+}
+
+.game-shell .question-banner .eyebrow {
+  display: block;
+  margin: 0 0 5px;
+  font-size: 9px;
+  color: #8a4b14;
+}
+
+.game-shell .question-banner h2 {
+  margin: 0;
+  padding: 0;
+  background: none;
+  font: 900 clamp(18px, 1.9vw, 25px) / 1.25 var(--bc-body);
+  color: #2a1608;
+  text-transform: none;
+  text-shadow: none;
+  text-wrap: balance;
+}
+
+.game-shell .question-banner.is-long h2 { font-size: clamp(16px, 1.55vw, 21px); }
+.game-shell .question-banner.is-xlong h2 { font-size: clamp(15px, 1.35vw, 19px); line-height: 1.22; }
+
+.game-shell .question-banner p {
+  margin: 4px 0 0;
+  font: 700 13px / 1.35 var(--bc-body);
+  color: #6b4a2e;
+}
+
+/* The answer hint is repeated in the label above, so very long questions drop it to stay short. */
+.game-shell .question-banner.is-xlong p { display: none; }
+
+/* ---------- Footer hotbar ---------- */
+.game-shell .scene-footer {
+  background: rgba(29, 18, 10, 0.86);
+  border: 4px solid var(--bc-ink);
+  border-radius: 0;
+  box-shadow: inset 0 0 0 3px #5a4636, 4px 4px 0 rgba(0, 0, 0, 0.3);
+  color: var(--bc-cream);
+}
+
+.game-shell .game-scene .scene-footer .place-chip strong { font: 400 10px var(--bc-pixel); color: var(--bc-gold); }
+.game-shell .game-scene .scene-footer .place-chip small { font: 700 13px var(--bc-body); color: var(--bc-cream); }
+.game-shell .game-scene .scene-footer .place-chip .place-icon,
+.game-shell .game-scene .scene-footer .move-hint { color: var(--bc-cream); }
+.game-shell .game-scene .scene-footer .move-hint small { color: #e8d5b8; font-weight: 700; }
+
+.game-shell .game-scene .scene-footer .keycap {
+  display: inline-grid;
+  place-items: center;
+  min-width: 30px;
+  height: 30px;
+  font: 400 11px var(--bc-pixel);
+  color: #ffffff;
+  text-shadow: 1px 1px 0 var(--bc-ink);
+  background: #8b8b8b;
+  border: 2px solid var(--bc-ink);
+  box-shadow: inset -3px -3px 0 #555555, inset 3px 3px 0 #c6c6c6;
+}
+
+.game-shell .game-scene .scene-footer .round-back {
+  background: var(--bc-stone);
+  border: 3px solid var(--bc-ink);
+  border-radius: 0;
+  box-shadow: inset -3px -3px 0 var(--bc-stone-dark), inset 3px 3px 0 #ffffff;
+}
+
+/* ---------- Game status messages ---------- */
+.game-shell :is(.run-status, .chapter-toast, .resume-shade) {
+  font: 400 10px / 1.6 var(--bc-pixel);
+  color: var(--bc-cream);
+  background: rgba(29, 18, 10, 0.88);
+  border: 3px solid var(--bc-ink);
+  border-radius: 0;
+  box-shadow: 3px 3px 0 rgba(0, 0, 0, 0.3);
+}
+
+.game-shell .run-status.is-saved { background: var(--bc-grass-dark); }
+
+.game-shell .inline-error {
+  font-weight: 800;
+  color: #ffffff;
+  background: #b3261e;
+  border: 3px solid var(--bc-ink);
+  border-radius: 0;
+  box-shadow: 3px 3px 0 rgba(0, 0, 0, 0.3);
+}
+
+/* No blur behind the pause card: blurring the live 3D canvas is costly. */
+.game-shell .pause-shade {
+  background: rgba(20, 12, 6, 0.72);
+  backdrop-filter: none;
+}
+
+.game-scene .runner-world {
+  background: linear-gradient(180deg, #8fd3ff 0%, #bfe6fb 52%, #62b33e 53%, #4f9e33 100%);
+}
+
+/* ---------- Price wheel ---------- */
+.game-shell .price-wheel { gap: 10px; }
+.game-shell .wheel-status { font: 800 14px / 1.35 var(--bc-body); color: var(--bc-cocoa); }
+.game-shell .wheel-pointer { border-top-color: var(--bc-choc); }
+
+/* ---------- Feature challenge ---------- */
+.game-shell .feature-card {
+  background: linear-gradient(180deg, #fffaf0, #efdcb6);
+  border: 3px solid var(--bc-ink);
+  border-radius: 0;
+  box-shadow: inset 3px 3px 0 #ffffff, inset -3px -3px 0 #c99a5e, 4px 4px 0 rgba(29, 18, 10, 0.3);
+}
+
+.game-shell .feature-card-copy strong { font-family: var(--bc-display); font-weight: 400; font-size: 18px; color: var(--bc-cocoa); letter-spacing: 0.3px; }
+.game-shell .feature-card-copy small { font-weight: 700; color: #6b4a2e; }
+
+.game-shell .feature-card-icon {
+  background: var(--bc-gold);
+  color: var(--bc-cocoa);
+  border: 2px solid var(--bc-ink);
+  border-radius: 0;
+  box-shadow: inset -3px -3px 0 #d39b17, inset 3px 3px 0 #ffe58a;
+}
+
+.game-shell .feature-card.is-selected {
+  background: linear-gradient(180deg, #8a5530, #6b3a1c);
+  box-shadow: inset 3px 3px 0 #b07a4a, inset -3px -3px 0 #4a2814, 4px 4px 0 rgba(29, 18, 10, 0.35), 0 0 0 3px var(--bc-gold);
+}
+
+.game-shell .feature-card.is-selected :is(strong, small) { color: var(--bc-cream); }
+
+.game-shell .feature-challenge-feedback { font-weight: 800; color: var(--bc-cocoa); }
+.game-shell .feature-challenge-timer { font: 400 10px var(--bc-pixel); color: var(--bc-choc); }
+.game-shell .timer-track { border-radius: 0; background: #5a4636; border: 2px solid var(--bc-ink); }
+.game-shell .timer-track span { border-radius: 0; background: var(--bc-gold); }
+
+/* ---------- Usage occasion cards ---------- */
+.game-shell .occasion-card-face {
+  border: 4px solid var(--bc-ink);
+  border-radius: 0;
+  box-shadow: inset 3px 3px 0 #ffffff, inset -3px -3px 0 #c99a5e, 5px 5px 0 rgba(29, 18, 10, 0.3);
+  background: linear-gradient(180deg, #fffaf0, #f0dcb5);
+}
+
+.game-shell .occasion-scene { border: 3px solid var(--bc-ink); border-radius: 0; }
+.game-shell .occasion-card-front strong { font-family: var(--bc-display); font-weight: 400; font-size: 20px; color: var(--bc-cocoa); }
+.game-shell .occasion-card-front small { font-weight: 700; color: #6b4a2e; }
+.game-shell .occasion-card-back h2 { font: 900 13px / 1.25 var(--bc-body); color: var(--bc-cocoa); text-shadow: none; }
+.game-shell .occasion-card-back { gap: 6px; padding: 12px 13px; }
+.game-shell .occasion-card-actions { margin-top: 2px; }
+.game-shell .occasion-secondary-action { padding: 5px 9px; font-size: 11px; }
+.game-shell .occasion-situation { font-weight: 700; color: #5a3a22; }
+
+.game-shell .occasion-complete-badge {
+  font: 400 8px var(--bc-pixel);
+  color: var(--bc-cocoa);
+  background: var(--bc-gold);
+  border: 2px solid var(--bc-ink);
+  border-radius: 0;
+}
+
+.game-shell .occasion-progress strong { font: 400 9px var(--bc-pixel); color: var(--bc-choc); }
+.game-shell .occasion-progress-track { height: 14px; border-radius: 0; background: #5a4636; border: 3px solid var(--bc-ink); }
+.game-shell .occasion-progress-track span { border-radius: 0; background: var(--bc-grass); box-shadow: inset 0 -3px 0 var(--bc-grass-dark); }
+.game-shell .occasion-footer { font-weight: 800; color: var(--bc-cocoa); }
+
+.game-shell .occasion-reward {
+  border: 4px solid var(--bc-ink);
+  border-radius: 0;
+  background: linear-gradient(180deg, #fff6e2, #f3dfb8);
+}
+
+/* ---------- Sweetness dial ---------- */
+.game-shell .sweetness-current strong { font-family: var(--bc-display); font-weight: 400; font-size: 26px; color: #c4621c; text-shadow: 2px 2px 0 var(--bc-ink); }
+.game-shell .sweetness-current :is(span, small) { font-weight: 800; color: #6b4a2e; }
+
+.game-shell .sweetness-range {
+  height: 16px;
+  border-radius: 0;
+  border: 3px solid var(--bc-ink);
+  background: linear-gradient(90deg, var(--bc-choc) 0 var(--sweetness-progress, 50%), #f1dcb4 var(--sweetness-progress, 50%) 100%);
+}
+
+.game-shell .sweetness-range::-webkit-slider-thumb {
+  width: 26px;
+  height: 26px;
+  border-radius: 0;
+  background: var(--bc-gold);
+  border: 3px solid var(--bc-ink);
+  box-shadow: inset -3px -3px 0 #d39b17, inset 3px 3px 0 #ffe58a;
+}
+
+.game-shell .sweetness-range::-moz-range-thumb {
+  width: 22px;
+  height: 22px;
+  border-radius: 0;
+  background: var(--bc-gold);
+  border: 3px solid var(--bc-ink);
+}
+
+/* ---------- Completion ---------- */
+.game-shell .completion-stats span {
+  background: var(--bc-stone);
+  border: 3px solid var(--bc-ink);
+  border-radius: 0;
+  box-shadow: inset -3px -3px 0 var(--bc-stone-dark), inset 3px 3px 0 #ffffff;
+}
+
+.game-shell .completion-stats strong { font-family: var(--bc-display); font-weight: 400; color: var(--bc-choc); }
+.game-shell .completion-stats small { font: 400 8px / 1.5 var(--bc-pixel); color: #4a3020; }
+
+.game-shell .complete-scene .cafe-cup-art {
+  border: 4px solid var(--bc-ink);
+  border-radius: 0;
+  background: linear-gradient(180deg, #ffe58a, var(--bc-gold));
+  box-shadow: inset -5px -5px 0 #d39b17, inset 5px 5px 0 #fff2b8, 5px 5px 0 rgba(29, 18, 10, 0.3);
+}
+
+.game-shell .cafe-ready-note {
+  font-weight: 800;
+  color: var(--bc-cocoa);
+  background: #fffaf0;
+  border: 3px solid var(--bc-ink);
+  border-radius: 0;
+}
+
+/* ---------- Small screens ---------- */
+@media (max-width: 700px) {
+  /* On phones the progress meter drops below the top bar, so the banner starts under it.
+     The :has() selector matches the one in App.css so this rule wins. */
+  .game-shell .question-banner,
+  .game-shell:has(.game-scene) .question-banner {
+    top: 100px;
+    min-width: 0;
+    width: calc(100% - 24px);
+    padding: 7px 12px 8px;
+    border-width: 3px;
+    border-top-width: 8px;
+  }
+
+  .game-shell .question-banner h2 { font-size: 16px; }
+  .game-shell .question-banner.is-long h2 { font-size: 15px; }
+  .game-shell .question-banner.is-xlong h2 { font-size: 14px; }
+  .game-shell .question-banner p { font-size: 11px; }
+
+  .game-shell :is(.gold-cta, .respondent-intro-submit, .sweetness-save, .occasion-continue, .enter-cta) { font-size: 10px; padding: 12px 16px; }
+  /* Number keys don't apply on touch screens; the room goes to the question label. */
+  .game-shell .game-scene .scene-footer .move-hint { display: none; }
+  .game-shell .game-scene .scene-footer .place-chip { max-width: none; }
+  .game-shell::after { height: 60px; }
+  .game-shell::before { height: 36px; }
+}
+
+/* Short windows: tighter banner so it clears the doors. */
+@media (max-height: 760px) and (min-width: 701px) {
+  .game-shell .question-banner,
+  .game-shell:has(.game-scene) .question-banner { top: 68px; padding: 7px 18px 8px; }
+  .game-shell .question-banner h2 { font-size: clamp(16px, 1.6vw, 21px); }
+  .game-shell .question-banner.is-long h2 { font-size: clamp(15px, 1.4vw, 18px); }
+  .game-shell .question-banner.is-xlong h2 { font-size: clamp(14px, 1.25vw, 17px); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cocoa-fx { display: none; }
+  .game-shell :is(.gold-cta, .respondent-intro-submit, .sweetness-save, .occasion-continue, .enter-cta) { transition: none; }
+}
