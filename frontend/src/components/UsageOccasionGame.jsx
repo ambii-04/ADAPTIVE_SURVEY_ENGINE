@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import {
   BedDouble,
   BriefcaseBusiness,
@@ -98,6 +98,9 @@ function OccasionScene({ location }) {
   );
 }
 
+// How long a just-answered card stays face up before it turns back over.
+const FLIP_BACK_MS = 900;
+
 export default function UsageOccasionGame({
   responses,
   completedLocations,
@@ -108,6 +111,7 @@ export default function UsageOccasionGame({
   const [activeLocation, setActiveLocation] = useState(null);
   const [savingLocation, setSavingLocation] = useState(null);
   const [error, setError] = useState('');
+  const flipBackTimer = useRef(null);
   const active = LOCATIONS.find((location) => location.id === activeLocation);
   const completedCount = completedLocations.length;
   const isComplete = completedCount === LOCATIONS.length;
@@ -117,6 +121,12 @@ export default function UsageOccasionGame({
     setError('');
     try {
       await onAnswer(location.id, response);
+      // An answer completes the place; the card turns back over after a moment so the choice stays visible.
+      onComplete(location.id);
+      window.clearTimeout(flipBackTimer.current);
+      flipBackTimer.current = window.setTimeout(() => {
+        setActiveLocation((current) => (current === location.id ? null : current));
+      }, FLIP_BACK_MS);
     } catch (saveError) {
       setError(`We couldn't save your ${location.label} response (${saveError.message}). Please try again.`);
     } finally {
@@ -124,12 +134,7 @@ export default function UsageOccasionGame({
     }
   };
 
-  const markComplete = () => {
-    if (!active || !responses[active.id]) return;
-    onComplete(active.id);
-    setActiveLocation(null);
-    setError('');
-  };
+  useEffect(() => () => window.clearTimeout(flipBackTimer.current), []);
 
   return (
     <section className="usage-occasion-game" aria-labelledby="usage-occasion-title">
@@ -214,14 +219,6 @@ export default function UsageOccasionGame({
                             >
                               Back to cards
                             </button>
-                            <button
-                              type="button"
-                              className="occasion-complete-action"
-                              disabled={savingLocation !== null}
-                              onClick={markComplete}
-                            >
-                              Mark completed <Check size={15} aria-hidden="true" />
-                            </button>
                           </div>
                         )}
                       </div>
@@ -231,7 +228,7 @@ export default function UsageOccasionGame({
               })}
             </div>
             <div className="occasion-footer" aria-live={error ? 'assertive' : 'polite'} role={error ? 'alert' : 'status'}>
-              {error || (active ? 'Choose an answer, then return to the cards or mark this place complete.' : 'Choose any card to see its own little real-life moment.')}
+              {error || (active ? 'Pick an answer and this place is marked complete.' : 'Choose any card to see its own little real-life moment.')}
             </div>
           </>
         )}

@@ -5,32 +5,32 @@ import { useRef } from 'react';
 // Four original destinations. Colours and light are eased in while the fog hides the change.
 // The props below are simple procedural geometry, not copied from any other game.
 export const DESTINATIONS = [
-  { name: 'Morning Energy Café', sky: '#f3dcc0', ground: '#b89170', path: '#d8b08a', light: '#ffd9a0', hemi: '#fff1dc', props: 'cafe' },
-  { name: 'Flavour Forest', sky: '#cfe0c4', ground: '#6f8a5a', path: '#8fa577', light: '#e4f5c4', hemi: '#eaf7dd', props: 'forest' },
-  { name: 'Price Bridge', sky: '#b9bfd6', ground: '#5d6a86', path: '#7a86a0', light: '#f2d9b8', hemi: '#dfe3f0', props: 'bridge' },
-  { name: 'ChocoWarm Workshop', sky: '#e2c4a4', ground: '#7a5238', path: '#9b6b47', light: '#ffb878', hemi: '#ffe6c8', props: 'workshop' },
+  { name: 'Morning Energy Café', sky: '#8fd3ff', ground: '#5fae3b', path: '#8a5530', light: '#ffd9a0', hemi: '#fff1dc', props: 'cafe' },
+  { name: 'Flavour Forest', sky: '#93d6f6', ground: '#4f9e33', path: '#7d4b29', light: '#e4f5c4', hemi: '#eaf7dd', props: 'forest' },
+  { name: 'Price Bridge', sky: '#9fc6ff', ground: '#5a9a3e', path: '#8a5530', light: '#f2d9b8', hemi: '#dfe3f0', props: 'bridge' },
+  { name: 'ChocoWarm Workshop', sky: '#f6c48f', ground: '#6a8f35', path: '#6e3f22', light: '#ffb878', hemi: '#ffe6c8', props: 'workshop' },
 ];
 
 export const SEASON_THEMES = {
   Summer: {
-    sky: '#f4d59b', ground: '#718e4f', path: '#b7a86d',
-    light: '#ffe69f', hemi: '#fff1d5', evergreen: '#477043',
-    foliage: '#69934e', ornament: '#e9754f', bridge: '#a87845',
+    sky: '#8fd3ff', ground: '#5fae3b', path: '#8a5530',
+    light: '#fff1c4', hemi: '#f2fbff', evergreen: '#2f6b2a',
+    foliage: '#4f9e33', ornament: '#e8663a', bridge: '#a0672e',
   },
   Winter: {
-    sky: '#b9cee2', ground: '#d8e2e9', path: '#edf0eb',
+    sky: '#b9dcf5', ground: '#f4f8fb', path: '#8a5530',
     light: '#fff2d7', hemi: '#e5eff9', evergreen: '#315b4a',
     foliage: '#477662', ornament: '#cf5d61', bridge: '#a8c4d7',
   },
   Monsoon: {
-    sky: '#aab9c7', ground: '#526c60', path: '#738b80',
+    sky: '#9fb7c9', ground: '#4f8a45', path: '#7a4a2a',
     light: '#d7e7ed', hemi: '#dce7e8', evergreen: '#355f4a',
     foliage: '#47765a', ornament: '#d9a447', bridge: '#687d78',
   },
   Spring: {
-    sky: '#edced8', ground: '#7da66b', path: '#b2c988',
-    light: '#ffdda6', hemi: '#f7e8ed', evergreen: '#52824f',
-    foliage: '#7da75f', ornament: '#e989a1', bridge: '#a98471',
+    sky: '#8fd3ff', ground: '#62b33e', path: '#8a5530',
+    light: '#fff0c8', hemi: '#f2fbff', evergreen: '#2f6b2a',
+    foliage: '#55a836', ornament: '#ff7aa8', bridge: '#a0672e',
   },
 };
 
