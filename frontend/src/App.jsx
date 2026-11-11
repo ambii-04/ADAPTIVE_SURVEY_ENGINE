@@ -14,6 +14,7 @@ import { researchService } from './services/index.js';
 import { sfx, setSoundEnabled } from './utils/sound.js';
 import './App.css';
 import './StartTheme.css';
+import './theme.css';
 
 const optionColors = ['amber', 'blue', 'violet', 'green'];
 const optionSymbols = ['heart', 'energy', 'relax', 'taste'];
@@ -30,6 +31,13 @@ const SOUND_KEY = 'chocowarm-sound';
 // Longest a run-through is allowed to take before the journey continues anyway (runs take about 5–15 seconds).
 const RUN_WATCHDOG_MS = 30000;
 const FEATURE_CHALLENGE_SECONDS = 7;
+
+// Longer questions get a wider, flatter banner so they never cover the doors below.
+function questionLengthClass(text = '') {
+  if (text.length > 200) return 'is-xlong';
+  if (text.length > 110) return 'is-long';
+  return '';
+}
 
 function readSavedJourney() {
   try {
@@ -594,6 +602,8 @@ function App() {
   return <main className={`game-shell ${transitioning ? 'scene-transitioning' : ''}`}>
     <div className="world-backdrop" />
     <div className="world-vignette" />
+    {/* Decorative marshmallows and steam for the menu screens; hidden during the 3D run. */}
+    <div className="cocoa-fx" aria-hidden="true">{Array.from({ length: 8 }, (_, index) => <span key={index} className={index % 2 ? 'cocoa-steam' : 'cocoa-mallow'} />)}</div>
     <header className="top-hud">
       <button className="brand-mark" onClick={() => setScreen('welcome')} aria-label="ChocoWarm home"><span className="brand-heart">H</span><span><strong>ChocoWarm</strong><small>Your Hot Chocolate</small></span></button>
       {screen === 'game' && <div className="journey-meter"><div className="meter-title"><Sparkles size={17}/><span className="destination-name">{DESTINATIONS[Math.min(Math.floor(answers.length / 6), DESTINATIONS.length - 1)].name}</span><b>{progress.completed}/{progress.total}</b></div><div className="meter-segments" role="progressbar" aria-label="Survey progress" aria-valuemin={0} aria-valuemax={progress.total} aria-valuenow={progress.completed}>{Array.from({ length: progress.total }, (_, index) => <span key={index} className={index < progress.completed ? 'segment-done' : index === progress.completed ? 'segment-current' : ''} />)}</div><ChapterTrail currentIndex={Math.min(Math.floor(answers.length / 6), DESTINATIONS.length - 1)} /></div>}
@@ -637,7 +647,7 @@ function App() {
 
     {screen === 'game' && current && !SUPPORTED_QUESTION_TYPES.includes(current.questionType) && <section className="complete-scene"><span className="eyebrow">Question not supported</span><h1>This question<br/><em>needs an update</em></h1><p>The survey sent a question type this version cannot show. Start over to continue.</p><button className="gold-cta" onClick={restartJourney}>Start over</button></section>}
     {screen === 'game' && current && SUPPORTED_QUESTION_TYPES.includes(current.questionType) && <section className="game-scene">
-      <div className="question-banner" key={current.id}><div className="question-cup"><Coffee size={27}/></div><div className="question-content"><span className="eyebrow">{current.place} · {questionTypeLabel}</span><h2>{current.question}</h2><p>{current.helper}</p></div><span className="question-glint glint-left">*</span><span className="question-glint glint-right">*</span></div>
+      <div className={`question-banner ${questionLengthClass(current.question)}`} key={current.id}><div className="question-cup"><Coffee size={27}/></div><div className="question-content"><span className="eyebrow">{current.place} · {questionTypeLabel}</span><h2>{current.question}</h2><p>{current.helper}</p></div><span className="question-glint glint-left">*</span><span className="question-glint glint-right">*</span></div>
       {/* The 3D scene stays mounted for every question; price questions simply show no doors. */}
       <RunnerWorld characterId={characterId} season={selectedSeason} options={current.questionType === 'price_input' || current.questionType === 'ranking' ? NO_OPTIONS : current.options} selected={selected} multiSelect={isMultipleChoice} isPaused={timerPaused} onChoose={chooseDoor} onRunComplete={handleRunComplete} onSceneReady={handleSceneReady} saveState={saveState} zoneIndex={Math.floor(answers.length / 6)} sceneKey={`${current.id}-${gameRunId}`} />
       {current.questionType === 'ranking' && !responseSaved && <RankingPanel options={current.options} saving={isSubmitting || transitioning} error={error} onSubmit={(items) => enterDoor(items)} />}

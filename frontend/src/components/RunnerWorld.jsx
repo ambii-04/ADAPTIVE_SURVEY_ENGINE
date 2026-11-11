@@ -1,5 +1,5 @@
 import { Canvas, useFrame } from '@react-three/fiber';
-import { Float, Sparkles, Text, ContactShadows } from '@react-three/drei';
+import { Float, Sparkles, Text } from '@react-three/drei';
 import { Suspense, memo, useEffect, useMemo, useRef, useState } from 'react';
 import * as THREE from 'three';
 import { DESTINATIONS, SEASON_THEMES, DestinationProps, RouteLandmarks, ROUTE_SEG, destinationFor } from './Destinations.jsx';
@@ -62,12 +62,12 @@ const usePrefersReducedMotion = () => {
 function SeasonalPine({ x, z, season, index }) {
   const theme = SEASON_THEMES[season] ?? SEASON_THEMES.Spring;
   return <group position={[x, 0, z]} scale={0.82 + (index % 3) * 0.1}>
-    <mesh position={[0, 0.9, 0]} castShadow>
+    <mesh position={[0, 0.9, 0]}>
       <cylinderGeometry args={[0.08, 0.15, 1.8, 7]} />
       <meshStandardMaterial color="#6b4a33" />
     </mesh>
     {[0, 1, 2].map((tier) => (
-      <mesh key={tier} position={[0, 1.55 + tier * 0.55, 0]} castShadow>
+      <mesh key={tier} position={[0, 1.55 + tier * 0.55, 0]}>
         <coneGeometry args={[0.88 - tier * 0.18, 1.45, 8]} />
         <meshStandardMaterial color={tier === 1 ? theme.foliage : theme.evergreen} flatShading />
       </mesh>
@@ -188,7 +188,7 @@ function Gate({ option, index, positionX, active, onChoose, gateWidth, gateScale
     onPointerOver={(e) => { e.stopPropagation(); hovered.current = true; document.body.style.cursor = 'pointer'; }}
     onPointerOut={() => { hovered.current = false; document.body.style.cursor = 'default'; }}
   >
-    <mesh position={[0, 2.1, 0]} castShadow><boxGeometry args={[gateWidth, .18, .35]} /><meshStandardMaterial color={color} emissive={color} emissiveIntensity={.65} /></mesh>
+    <mesh position={[0, 2.1, 0]} castShadow><boxGeometry args={[gateWidth, .18, .35]} /><meshStandardMaterial color={color} emissive={color} emissiveIntensity={active ? 1.1 : .65} /></mesh>
     {[-1, 1].map(s => <mesh key={s} position={[s * (halfWidth - 0.09), 1.08, 0]} castShadow><boxGeometry args={[.18, 2.16, .32]} /><meshStandardMaterial color={color} metalness={.3} roughness={.25} emissive={color} emissiveIntensity={.35} /></mesh>)}
     <group ref={hingeL} position={[-doorWidth, .06, .04]}><mesh position={[doorWidth / 2, 1, 0]} castShadow><boxGeometry args={[doorWidth, 1.9, .12]} /><meshStandardMaterial color="#8b5a3c" roughness={.5} /></mesh><mesh position={[doorWidth / 2, 1, .071]}><boxGeometry args={[doorWidth * .76, 1.6, .025]} /><meshStandardMaterial color={color} emissive={color} emissiveIntensity={.35} /></mesh><mesh position={[doorWidth * .8, 1, .1]}><sphereGeometry args={[.07, 12, 12]} /><meshStandardMaterial color="#fff5cc" metalness={.8} emissive={color} emissiveIntensity={.2} /></mesh></group>
     <group ref={hingeR} position={[doorWidth, .06, .04]}><mesh position={[-doorWidth / 2, 1, 0]} castShadow><boxGeometry args={[doorWidth, 1.9, .12]} /><meshStandardMaterial color="#8b5a3c" roughness={.5} /></mesh><mesh position={[-doorWidth / 2, 1, .071]}><boxGeometry args={[doorWidth * .76, 1.6, .025]} /><meshStandardMaterial color={color} emissive={color} emissiveIntensity={.35} /></mesh><mesh position={[-doorWidth * .8, 1, .1]}><sphereGeometry args={[.07, 12, 12]} /><meshStandardMaterial color="#fff5cc" metalness={.8} emissive={color} emissiveIntensity={.2} /></mesh></group>
@@ -200,7 +200,6 @@ function Gate({ option, index, positionX, active, onChoose, gateWidth, gateScale
     <Text position={[0, 3.44, .24]} fontSize={.25} color={color} anchorX="center" anchorY="middle" outlineWidth={.025} outlineColor="#1a0f1f">{`OPTION ${index + 1}`}</Text>
     {/* A glowing ring on the path marks each door's lane, brighter when it is chosen. */}
     <mesh position={[0, 0.03, 0.3]} rotation={[-Math.PI / 2, 0, 0]}><ringGeometry args={[gateWidth * 0.5, gateWidth * 0.62, 40]} /><meshStandardMaterial color={gem} emissive={gem} emissiveIntensity={active ? 1.3 : 0.35} transparent opacity={0.9} /></mesh>
-    <pointLight position={[0, 2.3, 1.2]} color={color} intensity={active ? 4.5 : 2.2} distance={6.5} decay={1.5} />
   </group>;
 }
 
@@ -296,8 +295,8 @@ function Lantern({ x, z, phase, rig }) {
     if (glow.current) glow.current.emissiveIntensity = .55 + Math.sin(state.clock.elapsedTime * 1.4 + phase) * .15 + rig.current.pulse * 1.2;
   });
   return <group position={[x, .5, z]}>
-    <mesh position={[0, 1.2, 0]} castShadow><cylinderGeometry args={[0.12, 0.2, 2, 6]} /><meshStandardMaterial color="#7a5c44" roughness={.7} /></mesh>
-    <mesh position={[0, 2.6, 0]} castShadow><sphereGeometry args={[0.7, 14, 14]} /><meshStandardMaterial ref={glow} color="#ffd08a" emissive="#ffb35c" emissiveIntensity={.55} roughness={.6} /></mesh>
+    <mesh position={[0, 1.2, 0]}><cylinderGeometry args={[0.12, 0.2, 2, 6]} /><meshStandardMaterial color="#7a5c44" roughness={.7} /></mesh>
+    <mesh position={[0, 2.6, 0]}><sphereGeometry args={[0.7, 14, 14]} /><meshStandardMaterial ref={glow} color="#ffd08a" emissive="#ffb35c" emissiveIntensity={.55} roughness={.6} /></mesh>
   </group>;
 }
 
@@ -479,7 +478,6 @@ function RunnerScene({ options, selected, multiSelect, isPaused, onChoose, onRun
       <Float speed={1.2} rotationIntensity={.1} floatIntensity={.15}><mesh position={[-7, 4.5, -18]}><sphereGeometry args={[.85, 20, 20]} /><meshStandardMaterial color="#fff5e0" emissive="#f5e6d3" emissiveIntensity={.5} /></mesh></Float>
       <Float speed={0.9} rotationIntensity={.08} floatIntensity={.12}><mesh position={[7, 3.8, -20]}><sphereGeometry args={[.6, 16, 16]} /><meshStandardMaterial color="#ffeacc" emissive="#f5d5b8" emissiveIntensity={.4} /></mesh></Float>
     </group>
-    <ContactShadows position={[0, -.11, 0]} opacity={.35} scale={9} blur={3} far={5} />
   </>;
 }
 
